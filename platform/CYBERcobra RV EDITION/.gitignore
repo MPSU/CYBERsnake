@@ -1,0 +1,5 @@
+*.mem
+!vga mem files/*
+*_disasm.S
+*.elf
+*.o
