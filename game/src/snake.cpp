@@ -203,7 +203,7 @@ void place_walls()
   for (size_t i = 1; i < HEIGHT - 1; i++)
   {
 #if HAS_HARD_MUL == true
-    size_t left_coord = i * WIDTH
+    size_t left_coord = i * WIDTH;
 #else
     // ((i<<2)+i)<<4  = (i*4+i) * 16 = i*5 * 16 = i * 80 = i * WIDTH
     size_t left_coord = ((i << 2) + i) << 4;
