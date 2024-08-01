@@ -29,7 +29,7 @@ uint8_t over_str[] = "Game over. Your score is:         ";
 uint8_t win_str[] = "You won. Your score is           ";
 
 #if DEBUG == true
-uint8_t stuck_str[] = "Stuck at generating snack. It's coord is:          "
+uint8_t stuck_str[] = "Stuck at generating snack. It's coord is:          ";
 #endif
 
 #define START_STR_LEN   (std::size(start_str) - 1)
@@ -44,12 +44,7 @@ uint8_t stuck_str[] = "Stuck at generating snack. It's coord is:          "
 #define OVER_STR_COORD    (WIDTH * HEIGHT / 2 - WIDTH / 2 - OVER_STR_LEN / 2)
 #define WIN_STR_COORD     (WIDTH * HEIGHT / 2 - WIDTH / 2 - WIN_STR_LEN / 2)
 
-/*
-  Somehow this array can't work if it's placed in .BSS section so we need
-  initialize array with any nonzero value.
-  TODO: Fix this.
-*/
-uint8_t backup_array[PAUSE_STR1_LEN + PAUSE_STR1_LEN] = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
+uint8_t backup_array[PAUSE_STR1_LEN + PAUSE_STR1_LEN];
 
 #if HAS_HARD_MUL == false
 /*

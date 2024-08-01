@@ -9,19 +9,26 @@ See https://github.com/MPSU/CYBERsnake/blob/master/LICENSE file for licensing
 details.
 * ------------------------------------------------------------------------------
 */
-#define DEBUG false
+#define DEBUG true
 
 #define WIDTH 80
 #define HEIGHT 30
 
 #define SNACK_ATTEMPTS_LIMIT 100
-#define ASCII_INPUT true
+
+enum InputType
+{
+  PS2,
+  ASCII
+};
+
+#define INPUT_TYPE PS2
 /*
   Set false, if your platform can't do hardware mul/div/rem operations.
   If set to false, check values of "left_wall_coords" and "right_wall_coords"
   arrays in snake.cpp.
 */
-#define HAS_HARD_MUL true
+#define HAS_HARD_MUL false
 
 #define WALL_CHAR '|'
 #define HEAD_CHAR 'o'
@@ -31,22 +38,22 @@ details.
 #define SPACE_CHAR ' '
 #define WIN_LENGTH 256
 
-#ifdef PS2_INPUT
+#if INPUT_TYPE == PS2
 #define UP_KEY      0x1D // W
 #define LEFT_KEY    0x1C // A
 #define DOWN_KEY    0x1B // S
 #define RIGHT_KEY   0x23 // D
 #define PAUSE_KEY   0x76 // ESC
 #define UNPAUSE_KEY 0x5a // Enter
-#endif
-
-#ifdef ASCII_INPUT
+#elif INPUT_TYPE == ASCII
 #define UP_KEY      'w'   // W
 #define LEFT_KEY    'a'   // A
 #define DOWN_KEY    's'   // S
 #define RIGHT_KEY   'd'   // D
 #define PAUSE_KEY   0x1B  // ESC
 #define UNPAUSE_KEY '\n'  // Enter
+#else
+#error "You must define INPUT_TYPE as either PS2 or ASCII"
 #endif
 
 #define START_TAIL_WIDTH 3

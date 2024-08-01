@@ -28,7 +28,7 @@ void config_periph()
 
 void config_timer()
 {
-  timer_ptr->delay = 2000000; // 1/5s
+  timer_ptr->delay = 1000000; // 1/5s
   timer_ptr->mode = 2;        // forever
 }
 
