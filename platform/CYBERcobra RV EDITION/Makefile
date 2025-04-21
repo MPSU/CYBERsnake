@@ -22,6 +22,7 @@ OUTPUT      = snake
 OUTPUT_PROD = $(addprefix $(OUTPUT), .mem _instr.mem _data.mem .elf _disasm.S)
 
 INC_DIRS    = ./inc/ ../../game/inc/
+CC_DEFINES  = -D INPUT_TYPE=PS2 -D HAS_HARD_MUL=false
 CC_FLAGS    = -march=rv32i_zicsr -mabi=ilp32 $(addprefix -I, $(INC_DIRS))
 LD_FLAGS    = -Wl,--gc-sections -nostartfiles -T $(LINK_SCRIPT)
 
@@ -51,13 +52,13 @@ $(OUTPUT)_disasm.S: $(OUTPUT).elf
 # Шаблонные рецепты (см. https://web.mit.edu/gnu/doc/html/make_10.html#SEC91)
 # Здесь говорится как создать объектные файлы из одноименных исходников
 %.o:	%.S
-	${CC} -c $(CC_FLAGS) $^ -o $@
+	${CC} -c $(CC_DEFINES) $(CC_FLAGS) $^ -o $@
 
 %.o:	%.c
-	${CC} -c $(CC_FLAGS) $^ -o $@
+	${CC} -c $(CC_DEFINES) $(CC_FLAGS) $^ -o $@
 
 %.o:	%.cpp
-	${CC} -c $(CC_FLAGS) $^ -o $@
+	${CC} -c $(CC_DEFINES) $(CC_FLAGS) $^ -o $@
 
 size: $(OUTPUT).elf
 # $< означает "первая зависимость"

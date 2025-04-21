@@ -18,13 +18,17 @@ details.
 
 #define PS2 0
 #define ASCII 1
+#ifndef INPUT_TYPE
 #define INPUT_TYPE PS2
+#endif
 /*
   Set false, if your platform can't do hardware mul/div/rem operations.
   If set to false, check values of "left_wall_coords" and "right_wall_coords"
   arrays in snake.cpp.
 */
+#ifndef HAS_HARD_MUL
 #define HAS_HARD_MUL false
+#endif
 
 #define WALL_CHAR '|'
 #define HEAD_CHAR 'o'
