@@ -16,12 +16,8 @@ details.
 
 #define SNACK_ATTEMPTS_LIMIT 100
 
-enum InputType
-{
-  PS2,
-  ASCII
-};
-
+#define PS2 0
+#define ASCII 1
 #define INPUT_TYPE PS2
 /*
   Set false, if your platform can't do hardware mul/div/rem operations.
@@ -51,7 +47,7 @@ enum InputType
 #define DOWN_KEY    's'   // S
 #define RIGHT_KEY   'd'   // D
 #define PAUSE_KEY   0x1B  // ESC
-#define UNPAUSE_KEY '\n'  // Enter
+#define UNPAUSE_KEY '\r'  // Enter
 #else
 #error "You must define INPUT_TYPE as either PS2 or ASCII"
 #endif
