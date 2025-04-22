@@ -44,7 +44,7 @@ uint8_t stuck_str[] = "Stuck at generating snack. It's coord is:          ";
 #define OVER_STR_COORD    (WIDTH * HEIGHT / 2 - WIDTH / 2 - OVER_STR_LEN / 2)
 #define WIN_STR_COORD     (WIDTH * HEIGHT / 2 - WIDTH / 2 - WIN_STR_LEN / 2)
 
-uint8_t backup_array[PAUSE_STR1_LEN + PAUSE_STR1_LEN];
+uint8_t backup_array[PAUSE_STR1_LEN + PAUSE_STR2_LEN];
 
 #if HAS_HARD_MUL == false
 /*
@@ -144,13 +144,13 @@ void do_game_finish()
 
 void do_game_pause()
 {
-  for (size_t i = PAUSE_STR1_COORD; i < PAUSE_STR1_COORD + PAUSE_STR1_LEN; i++)
+  for (size_t i = 0; i < PAUSE_STR1_LEN; i++)
   {
-    backup_array[i] = get_symbol(i);
+    backup_array[i] = get_symbol(PAUSE_STR1_COORD + i);
   }
-  for (size_t i = PAUSE_STR2_COORD; i < PAUSE_STR2_COORD + PAUSE_STR2_LEN; i++)
+  for (size_t i = 0; i < PAUSE_STR2_LEN; i++)
   {
-    backup_array[PAUSE_STR1_LEN+i] = get_symbol(i);
+    backup_array[PAUSE_STR1_LEN + i] = get_symbol(PAUSE_STR2_COORD + i);
   }
   print_string(pause_str1, PAUSE_STR1_LEN, PAUSE_STR1_COORD);
   print_string(pause_str2, PAUSE_STR2_LEN, PAUSE_STR2_COORD);
@@ -159,13 +159,13 @@ void do_game_pause()
 
 void do_game_unpause()
 {
-  for (size_t i = PAUSE_STR1_COORD; i < PAUSE_STR1_COORD + PAUSE_STR1_LEN; i++)
+  for (size_t i = 0; i < PAUSE_STR1_LEN; i++)
   {
-    print_symbol(i, backup_array[i]);
+    print_symbol(PAUSE_STR1_COORD + i, backup_array[i]);
   }
-  for (size_t i = PAUSE_STR2_COORD; i < PAUSE_STR2_COORD + PAUSE_STR2_LEN; i++)
+  for (size_t i = 0; i < PAUSE_STR2_LEN; i++)
   {
-    print_symbol(i, backup_array[PAUSE_STR1_LEN + i]);
+    print_symbol(PAUSE_STR2_COORD + i, backup_array[PAUSE_STR1_LEN + i]);
   }
   game_paused = false;
 }
