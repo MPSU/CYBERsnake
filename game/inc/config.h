@@ -51,7 +51,11 @@ details.
 #define DOWN_KEY    's'   // S
 #define RIGHT_KEY   'd'   // D
 #define PAUSE_KEY   0x1B  // ESC
+#if defined(_WIN32)
 #define UNPAUSE_KEY '\r'  // Enter
+#else
+#define UNPAUSE_KEY '\n'  // Enter
+#endif
 #else
 #error "You must define INPUT_TYPE as either PS2 or ASCII"
 #endif

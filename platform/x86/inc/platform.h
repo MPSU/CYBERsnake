@@ -22,7 +22,9 @@ details.
 #if defined(_WIN32)
 #include <conio.h>
 #else
-#error "This platform version is for Windows only"
+#include <termios.h>
+#include <unistd.h>
+#include <fcntl.h>
 #endif
 
 /*

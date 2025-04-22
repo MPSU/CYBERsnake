@@ -11,6 +11,50 @@ details.
 */
 #include "platform.h"
 
+#if !defined(_WIN32)
+bool _kbhit()
+{
+  struct timeval tv = {0L, 0L};
+  fd_set fds;
+  FD_ZERO(&fds);
+  FD_SET(STDIN_FILENO, &fds);
+  return select(STDIN_FILENO + 1, &fds, NULL, NULL, &tv) > 0;
+}
+
+int _getch()
+{
+  unsigned char ch;
+  if (read(STDIN_FILENO, &ch, 1) == 1)
+    return ch;
+  return -1;
+}
+
+static struct termios orig_termios;
+
+void reset_terminal_mode()
+{
+  tcsetattr(STDIN_FILENO, TCSANOW, &orig_termios);
+  std::cout << "\033[?25h"; // show cursor
+  std::cout.flush();
+}
+
+void set_terminal_mode()
+{
+  struct termios new_termios;
+  tcgetattr(STDIN_FILENO, &orig_termios);
+  atexit(reset_terminal_mode);
+
+  new_termios = orig_termios;
+  new_termios.c_lflag &= ~(ICANON | ECHO);
+  new_termios.c_cc[VMIN] = 0;
+  new_termios.c_cc[VTIME] = 0;
+
+  tcsetattr(STDIN_FILENO, TCSANOW, &new_termios);
+  std::cout << "\033[2J\033[H\033[?25l";
+  std::cout.flush();
+}
+#endif
+
 std::atomic<bool> active;
 std::atomic<uint8_t> cur_key = 0;
 uint8_t char_map[HEIGHT][WIDTH];
@@ -35,7 +79,8 @@ void blocking_input()
   {
     if (_kbhit())
     {
-      cur_key = _getch();
+      int ch = _getch();
+      cur_key = static_cast<uint8_t>(ch);
     }
     std::this_thread::sleep_for(std::chrono::milliseconds(10));
   }
@@ -46,6 +91,10 @@ void config_periph()
   for (size_t i = 0; i < HEIGHT; ++i)
     for (size_t j = 0; j < WIDTH; ++j)
       char_map[i][j] = SPACE_CHAR;
+
+#if !defined(_WIN32)
+  set_terminal_mode();
+#endif
 
   std::thread(timer_interrupt).detach();
   std::thread(blocking_input).detach();
