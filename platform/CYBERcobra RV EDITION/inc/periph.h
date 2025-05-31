@@ -84,9 +84,11 @@ struct VGA_HANDLE
 
 struct TIMER_HANDLE
 {
-  volatile const uint32_t system_counter;
-  volatile uint64_t delay;
-  volatile uint64_t mode;
+  volatile const uint32_t system_counter_low_bits;
+  volatile const uint32_t system_counter_high_bits;
+  volatile uint32_t delay_low_bits;
+  volatile uint32_t delay_high_bits;
+  volatile uint32_t mode;
   volatile uint32_t repeat_counter;
   volatile const uint32_t __unused2__[3];
   volatile uint32_t rst;

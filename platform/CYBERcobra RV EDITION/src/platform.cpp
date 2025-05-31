@@ -29,7 +29,7 @@ void config_periph()
 
 void config_timer()
 {
-  timer_ptr->delay = 1000000; // 1/5s
+  timer_ptr->delay_low_bits = 1000000; // 1/5s
   timer_ptr->mode = 2;        // forever
 }
 
@@ -70,7 +70,7 @@ size_t get_random_value()
 */
 size_t get_tick_number()
 {
-  return timer_ptr->system_counter;
+  return timer_ptr->system_counter_low_bits;
 }
 
 size_t seed_rng(size_t seed)
