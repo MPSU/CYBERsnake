@@ -45,10 +45,10 @@ def flash(data: bytes, port: serial.Serial, start_addr: int):
   addr_bytes = start_addr.to_bytes(4, "big")
   port.write(addr_bytes)
 
-  ready_msg = port.read(40)
+  ready_msg = port.read(41)
   ready_msg_str = ready_msg.decode("ascii")
   print(ready_msg_str)
-  assert(ready_msg_str == "ready for flash staring from 0x{:08x}\n".format(start_addr))
+  assert(ready_msg_str == "ready for flash starting from 0x{:08x}\n".format(start_addr))
 
   data_len = len(data)
   data_len_bytes = data_len.to_bytes(4, "big")
