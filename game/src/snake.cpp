@@ -46,19 +46,6 @@ uint8_t stuck_str[] = "Stuck at generating snack. It's coord is:          ";
 
 uint8_t backup_array[PAUSE_STR1_LEN + PAUSE_STR2_LEN];
 
-#if HAS_HARD_MUL == false
-/*
-  If device can't do rem operation, we need to precompute that values in order
-  to check whether object collided with walls.
-  left_wall_coords can be computed in python as follows:
-    print(list(range(WIDTH,WIDTH*(HEIGHT-1),WIDTH)))
-  right_wall_coords can be computed in python as follows:
-    print(list(range(WIDTH*2-1,WIDTH*(HEIGHT-1),WIDTH)))
-*/
-uint16_t left_wall_coords[HEIGHT - 2]  = { 80, 160, 240, 320, 400, 480, 560, 640, 720, 800, 880, 960, 1040, 1120, 1200, 1280, 1360, 1440, 1520, 1600, 1680, 1760, 1840, 1920, 2000, 2080, 2160, 2240};
-uint16_t right_wall_coords[HEIGHT - 2] = {159, 239, 319, 399, 479, 559, 639, 719, 799, 879, 959, 1039, 1119, 1199, 1279, 1359, 1439, 1519, 1599, 1679, 1759, 1839, 1919, 1999, 2079, 2159, 2239, 2319};
-#endif
-
 int main()
 {
   config_periph();
@@ -208,12 +195,7 @@ void place_walls()
   }
   for (size_t i = 1; i < HEIGHT - 1; i++)
   {
-#if HAS_HARD_MUL == true
     size_t left_coord = i * WIDTH;
-#else
-    // ((i<<2)+i)<<4  = (i*4+i) * 16 = i*5 * 16 = i * 80 = i * WIDTH
-    size_t left_coord = ((i << 2) + i) << 4;
-#endif
     size_t right_coord = left_coord + (WIDTH - 1);
     print_symbol(left_coord, WALL_CHAR);          // place brick of left  wall
     print_symbol(right_coord, WALL_CHAR);         // place brick of right wall
@@ -236,14 +218,8 @@ void place_snack()
       print_uint32(WIDTH + std::size(stuck_str) - 9, snack_coord);
     }
 #endif
-    snack_coord += get_random_value();
-    // if snack coords went out of map, wrap it back
-    if(snack_coord > (WIDTH * (HEIGHT-1)))
-    {
-      snack_coord -= WIDTH * (HEIGHT - 1);
-    }
+    snack_coord = get_random_value();
     try_count++;
-
   }
   while(snake.has_collided(snack_coord));
   print_symbol(snack_coord, SNACK_CHAR);
@@ -344,17 +320,9 @@ bool Snake::has_collided(const size_t coord)
   bool bottom_collide       = coord >= bottom;
   bool left_collide         = false;
   bool right_collide        = false;
-#if HAS_HARD_MUL == true
   size_t wrapped_coord = coord % WIDTH;
   left_collide  = wrapped_coord == 0;
   right_collide = wrapped_coord == WIDTH - 1;
-#else
-  for (size_t i = 0; i < HEIGHT - 2; i++)
-  {
-    left_collide  |= coord == left_wall_coords[i];
-    right_collide |= coord == right_wall_coords[i];
-  }
-#endif
   bool self_collide = is_in_snake(coord);
 #if DEBUG == true
   if(left_collide)    print_symbol(WIDTH * (HEIGHT - 1) - 4, 'l');
