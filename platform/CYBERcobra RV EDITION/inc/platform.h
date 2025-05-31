@@ -13,7 +13,7 @@ details.
 #include "periph.h"
 #include <cstdint>
 #include <cstddef>
-
+#include <random>
 /*
 ================================================================================
   List of functions that snake.h needs to be defined.

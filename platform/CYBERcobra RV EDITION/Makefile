@@ -22,7 +22,7 @@ OUTPUT      = snake
 OUTPUT_PROD = $(addprefix $(OUTPUT), .mem _instr.mem _data.mem .elf _disasm.S)
 
 INC_DIRS    = ./inc/ ../../game/inc/
-CC_DEFINES  = -D INPUT_TYPE=PS2 -D HAS_HARD_MUL=false
+CC_DEFINES  = -D INPUT_TYPE=PS2
 CC_FLAGS    = -march=rv32i_zicsr -mabi=ilp32 $(addprefix -I, $(INC_DIRS))
 LD_FLAGS    = -Wl,--gc-sections -nostartfiles -T $(LINK_SCRIPT)
 
@@ -42,7 +42,7 @@ princeton: $(OUTPUT).elf $(OUTPUT)_disasm.S size
 
 $(OUTPUT).elf: $(OBJS)
 # $^ Означает "все зависимости".
-	${CC} $^ $(LD_FLAGS) -o $(OUTPUT).elf
+	${CC} $^ $(CC_FLAGS) $(LD_FLAGS) -o $(OUTPUT).elf
 
 $(OUTPUT)_disasm.S: $(OUTPUT).elf
 # $< означает "первая зависимость", $@ — "цель рецепта".
