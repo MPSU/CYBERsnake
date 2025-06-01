@@ -20,10 +20,14 @@ volatile VGA_HANDLE vga = {
 volatile TIMER_HANDLE *timer_ptr = CAST(struct TIMER_HANDLE *, 0x08000000);
 volatile PS2_HANDLE *ps2_ptr = CAST(struct PS2_HANDLE *, 0x03000000);
 extern Snake snake;
+extern volatile uint8_t (*video_memory_2d)[WIDTH];
+extern volatile uint8_t *video_memory_1d;
 std::minstd_rand0 rng;
 
 void config_periph()
 {
+  video_memory_1d = vga.char_map;
+  video_memory_2d = reinterpret_cast<volatile uint8_t (*)[WIDTH]>(vga.char_map);
   config_timer();
 }
 
@@ -31,16 +35,6 @@ void config_timer()
 {
   timer_ptr->delay_low_bits = 1000000; // 1/5s
   timer_ptr->mode = 2;        // forever
-}
-
-void print_symbol(const size_t coord, const uint8_t symbol)
-{
-  vga.char_map[coord] = symbol;
-}
-
-uint8_t get_symbol(const size_t coord)
-{
-  return vga.char_map[coord];
 }
 
 /*

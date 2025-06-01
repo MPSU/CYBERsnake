@@ -19,24 +19,18 @@ enum game_state
   FINISHED
 };
 
-game_state state;
-
-bool game_started   = false;
-bool game_finished  = false;
-bool game_paused    = false;
-
-size_t snack_coord  = 0;
+game_state state = FINISHED;
+volatile uint8_t (*video_memory_2d)[WIDTH];
+volatile uint8_t *video_memory_1d;
 
 Snake snake;
-// If snake reach WIN_LENGTH, you win
-uint16_t snake_coords[WIN_LENGTH];
+size_t snack_coord  = 0;
 
-
-uint8_t start_str[] = "Press any key to start new game";
-uint8_t pause_str1[] = "Game paused";
-uint8_t pause_str2[] = "Press Enter to continue";
-uint8_t over_str[] = "Game over. Your score is:         ";
-uint8_t win_str[] = "You won. Your score is           ";
+uint8_t start_str[]   = "Press any key to start new game";
+uint8_t pause_str1[]  = "Game paused";
+uint8_t pause_str2[]  = "Press Enter to continue";
+uint8_t over_str[]    = "Game over. Your score is:         ";
+uint8_t win_str[]     = "You won. Your score is           ";
 
 #if DEBUG == true
 uint8_t stuck_str[] = "Stuck at generating snack. It's coord is:          ";
@@ -75,7 +69,7 @@ void clear_screen()
 {
   for (size_t i = 0; i < WIDTH * HEIGHT; i++)
   {
-    print_symbol(i, ' ');
+    video_memory_1d[i] = ' ';
   }
 }
 
@@ -83,14 +77,14 @@ void print_string(const uint8_t *str, const size_t size, size_t start_coord)
 {
   for (size_t i = 0; i < size; i++)
   {
-    print_symbol(start_coord + i, str[i]);
+    video_memory_1d[start_coord + i] = str[i];
   }
 }
 
 void print_uint32(size_t start_coord, uint32_t number)
 {
-  print_symbol(start_coord, '0');
-  print_symbol(start_coord+1, 'x');
+  video_memory_1d[start_coord   ] = '0';
+  video_memory_1d[start_coord + 1]= 'x';
   uint8_t cur_digit;
   uint8_t cur_nibble;
 
@@ -99,7 +93,7 @@ void print_uint32(size_t start_coord, uint32_t number)
     cur_nibble = (number >> (i * 4)) & 0xF;
     cur_digit = cur_nibble < 10 ? cur_nibble + '0' : cur_nibble + 'a' - 10;
     // start_coord + 2 (because of 0x) + 7 - i (to place MSB first)
-    print_symbol(start_coord + 9 - i, cur_digit);
+    video_memory_1d[start_coord + 9 - i] = cur_digit;
   }
 }
 
@@ -107,7 +101,7 @@ void do_new_game()
 {
   print_string(start_str, START_STR_LEN, START_STR_COORD);
   state = FINISHED;
-  snake = Snake();
+  snake.reset();
 }
 
 void prepare_game()
@@ -116,7 +110,7 @@ void prepare_game()
   clear_screen();
   place_walls();
   place_snack();
-  snake = Snake();
+  snake.reset();
 }
 
 void do_game_over()
@@ -141,11 +135,11 @@ void do_game_pause()
 {
   for (size_t i = 0; i < PAUSE_STR1_LEN; i++)
   {
-    backup_array[i] = get_symbol(PAUSE_STR1_COORD + i);
+    backup_array[i] = video_memory_1d[PAUSE_STR1_COORD + i];
   }
   for (size_t i = 0; i < PAUSE_STR2_LEN; i++)
   {
-    backup_array[PAUSE_STR1_LEN + i] = get_symbol(PAUSE_STR2_COORD + i);
+    backup_array[PAUSE_STR1_LEN + i] = video_memory_1d[PAUSE_STR2_COORD + i];
   }
   print_string(pause_str1, PAUSE_STR1_LEN, PAUSE_STR1_COORD);
   print_string(pause_str2, PAUSE_STR2_LEN, PAUSE_STR2_COORD);
@@ -156,11 +150,11 @@ void do_game_unpause()
 {
   for (size_t i = 0; i < PAUSE_STR1_LEN; i++)
   {
-    print_symbol(PAUSE_STR1_COORD + i, backup_array[i]);
+    video_memory_1d[PAUSE_STR1_COORD + i] = backup_array[i];
   }
   for (size_t i = 0; i < PAUSE_STR2_LEN; i++)
   {
-    print_symbol(PAUSE_STR2_COORD + i, backup_array[PAUSE_STR1_LEN + i]);
+    video_memory_1d[PAUSE_STR2_COORD + i] = backup_array[PAUSE_STR1_LEN + i];
   }
   state = STARTED;
 }
@@ -171,7 +165,7 @@ void game_cycle()
   if(state == STARTED)
   {
     snake.move_head();
-    if (snake_coords[snake.head_index] == snack_coord)
+    if (snake.is_eating(snack_coord))
     {
       snake.length++;
       if(snake.length == WIN_LENGTH)
@@ -187,7 +181,7 @@ void game_cycle()
     {
       snake.move_tail();
     }
-    if (snake.has_collided(snake_coords[snake.head_index]))
+    if (snake.has_head_accident())
     {
       do_game_over();
     }
@@ -199,18 +193,16 @@ void place_walls()
 
   for(size_t i = 0; i < WIDTH; i++)
   {
-    print_symbol(i, WALL_CHAR); // place top wall
+    video_memory_2d[0][i] = WALL_CHAR; // place top wall
   }
   for (size_t i = 1; i < HEIGHT - 1; i++)
   {
-    size_t left_coord = i * WIDTH;
-    size_t right_coord = left_coord + (WIDTH - 1);
-    print_symbol(left_coord, WALL_CHAR);          // place brick of left  wall
-    print_symbol(right_coord, WALL_CHAR);         // place brick of right wall
+    video_memory_2d[i][        0] = WALL_CHAR; // place brick of left  wall
+    video_memory_2d[i][WIDTH - 1] = WALL_CHAR; // place brick of right wall
   }
-  for (size_t i = WIDTH * (HEIGHT - 1); i < WIDTH * HEIGHT; i++)
+  for (size_t i = 0; i < WIDTH; i++)
   {
-    print_symbol(i, WALL_CHAR); // place bottom wall
+    video_memory_2d[HEIGHT - 1][i] = WALL_CHAR; // place bottom wall
   }
 }
 
@@ -230,13 +222,16 @@ void place_snack()
     try_count++;
   }
   while(snake.has_collided(snack_coord));
-  print_symbol(snack_coord, SNACK_CHAR);
+  video_memory_1d[snack_coord] = SNACK_CHAR;
 }
 
-Snake::Snake(){
-  length      = START_TAIL_WIDTH;
-  head_index  = 0;
-  tail_index  = 0;
+Snake::Snake(){}
+
+void Snake::reset()
+{
+  length = START_TAIL_WIDTH;
+  head_index = 0;
+  tail_index = 0;
   dir = RIGHT;
   snake_coords[tail_index] = START_TAIL_COORD;
   for (size_t i = 0; i < length; i++)
@@ -291,21 +286,21 @@ void Snake::move_head()
   size_t cur_pos = snake_coords[head_index];
   if((dir == UP) || (dir == DOWN))
   {
-    print_symbol(snake_coords[head_index], VER_TAIL_CHAR);
+    video_memory_1d[snake_coords[head_index]] = VER_TAIL_CHAR;
   }
   else
   {
-    print_symbol(snake_coords[head_index], HOR_TAIL_CHAR);
+    video_memory_1d[snake_coords[head_index]] = HOR_TAIL_CHAR;
   }
   head_index = head_index + 1 < WIN_LENGTH ? head_index + 1 : 0;
   snake_coords[head_index] = cur_pos + dir;
-  print_symbol(snake_coords[head_index], HEAD_CHAR);
+  video_memory_1d[snake_coords[head_index]] = HEAD_CHAR;
 }
 
 void Snake::move_tail()
 {
   size_t cur_pos = snake_coords[tail_index];
-  print_symbol(snake_coords[tail_index], SPACE_CHAR);
+  video_memory_1d[snake_coords[tail_index]] = SPACE_CHAR;
   tail_index = tail_index + 1 < WIN_LENGTH ? tail_index + 1 : 0;
 }
 
@@ -317,6 +312,11 @@ bool Snake::is_in_snake(const size_t coord)
     res |= coord == snake_coords[i];
   }
   return res;
+}
+
+bool Snake::is_eating(const size_t coord)
+{
+  return snake_coords[head_index] == coord;
 }
 
 bool Snake::has_collided(const size_t coord)
@@ -332,11 +332,16 @@ bool Snake::has_collided(const size_t coord)
   right_collide = wrapped_coord == WIDTH - 1;
   bool self_collide = is_in_snake(coord);
 #if DEBUG == true
-  if(left_collide)    print_symbol(WIDTH * (HEIGHT - 1) - 4, 'l');
-  if(right_collide)   print_symbol(WIDTH * (HEIGHT - 1) - 4, 'r');
-  if(top_collide)     print_symbol(WIDTH * (HEIGHT - 1) - 4, 't');
-  if(bottom_collide)  print_symbol(WIDTH * (HEIGHT - 1) - 4, 'b');
-  if(self_collide)    print_symbol(WIDTH * (HEIGHT - 1) - 4, 's');
+  if(left_collide)    video_memory_2d[HEIGHT - 2][WIDTH - 4] = 'l';
+  if(right_collide)   video_memory_2d[HEIGHT - 2][WIDTH - 4] = 'r';
+  if(top_collide)     video_memory_2d[HEIGHT - 2][WIDTH - 4] = 't';
+  if(bottom_collide)  video_memory_2d[HEIGHT - 2][WIDTH - 4] = 'b';
+  if(self_collide)    video_memory_2d[HEIGHT - 2][WIDTH - 4] = 's';
 #endif
   return top_collide || bottom_collide || left_collide || right_collide || self_collide;
+}
+
+bool Snake:: has_head_accident()
+{
+  return has_collided(snake_coords[head_index]);
 }

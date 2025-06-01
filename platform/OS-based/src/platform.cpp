@@ -57,7 +57,9 @@ void set_terminal_mode()
 
 std::atomic<bool> active;
 std::atomic<uint8_t> cur_key = 0;
-uint8_t char_map[HEIGHT][WIDTH];
+extern volatile uint8_t (*video_memory_2d)[WIDTH];
+extern volatile uint8_t *video_memory_1d;
+volatile uint8_t char_map[SCREEN_SIZE];
 
 std::default_random_engine rng;
 std::uniform_int_distribution<int> uniform_dist(WIDTH, WIDTH *(HEIGHT - 1));
@@ -88,9 +90,8 @@ void blocking_input()
 
 void config_periph()
 {
-  for (size_t i = 0; i < HEIGHT; ++i)
-    for (size_t j = 0; j < WIDTH; ++j)
-      char_map[i][j] = SPACE_CHAR;
+  video_memory_1d = char_map;
+  video_memory_2d = reinterpret_cast<volatile uint8_t(*)[WIDTH]>(char_map);
 
 #if !defined(_WIN32)
   set_terminal_mode();
@@ -112,34 +113,13 @@ void redraw_frame()
   {
     for (size_t j = 0; j < WIDTH; j++)
     {
-      frame += char_map[i][j];
+      frame += video_memory_2d[i][j];
     }
     frame += '\n';
   }
 
   std::cout << frame;
   std::cout.flush();
-}
-
-void print_symbol(const size_t coord, const uint8_t symbol)
-{
-  size_t row = coord / WIDTH;
-  size_t col = coord % WIDTH;
-  if (row < HEIGHT && col < WIDTH)
-  {
-    char_map[row][col] = symbol;
-  }
-}
-
-uint8_t get_symbol(const size_t coord)
-{
-  size_t row = coord / WIDTH;
-  size_t col = coord % WIDTH;
-  if (row < HEIGHT && col < WIDTH)
-  {
-    return char_map[row][col];
-  }
-  return SPACE_CHAR;
 }
 
 bool get_key(uint8_t &key)

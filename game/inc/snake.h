@@ -31,19 +31,6 @@ details.
 extern void config_periph();
 
 /*
-  Function that print passed symbol at specified coord of output device.
-  Base function of the entire game graphic.
-*/
-extern void print_symbol(const size_t coord, const uint8_t symbol);
-
-/*
-  Function that return current symbol that printed on output device at specified
-  coord. Used to backup output device regions while printing game overlays like
-  game pause messages.
-*/
-extern uint8_t get_symbol(const size_t coord);
-
-/*
   Function that get current input from input devices and if that's input is
   new — returns true.
 */
@@ -194,7 +181,10 @@ class Snake
   size_t head_index;
   size_t tail_index;
   direction dir;
+  // If snake reach WIN_LENGTH, you win
+  uint16_t snake_coords[WIN_LENGTH];
   Snake();
+  void reset();
 
 /*
   Method that process player input.
@@ -212,7 +202,18 @@ class Snake
   bool has_collided(const size_t coord);
 
 /*
-  Method that tells whether some part of the snake placed at specified coord.
+  Method that checks whether had head collide event.
 */
+  bool has_head_accident();
+
+  /*
+    Method that checks whether a something (usually snack) at the given
+    coord collides snake head.
+  */
+  bool is_eating(const size_t coord);
+
+  /*
+    Method that tells whether some part of the snake placed at specified coord.
+  */
   bool is_in_snake(const size_t coord);
 };
