@@ -13,6 +13,7 @@ details.
 
 #define WIDTH 80
 #define HEIGHT 30
+#define SCREEN_SIZE WIDTH * HEIGHT
 
 #define SNACK_ATTEMPTS_LIMIT 100
 

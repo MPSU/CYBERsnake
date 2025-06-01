@@ -11,6 +11,16 @@ details.
 */
 #include "snake.h"
 
+enum game_state
+{
+  // We use values that can be used directly in computing new position
+  STARTED,
+  PAUSED,
+  FINISHED
+};
+
+game_state state;
+
 bool game_started   = false;
 bool game_finished  = false;
 bool game_paused    = false;
@@ -54,9 +64,9 @@ int main()
   while(1)
   {
     do_new_game();
-    while (!game_started);
+    while (state != STARTED);
     prepare_game();
-    while (!game_finished);
+    while (state != FINISHED);
   }
   return 0;
 }
@@ -96,9 +106,7 @@ void print_uint32(size_t start_coord, uint32_t number)
 void do_new_game()
 {
   print_string(start_str, START_STR_LEN, START_STR_COORD);
-  game_started  = false;
-  game_finished = false;
-  game_paused   = false;
+  state = FINISHED;
   snake = Snake();
 }
 
@@ -113,7 +121,7 @@ void prepare_game()
 
 void do_game_over()
 {
-  game_finished = true;
+  state = FINISHED;
 #if DEBUG == false
   clear_screen();
 #endif
@@ -124,7 +132,7 @@ void do_game_over()
 
 void do_game_finish()
 {
-  game_finished = true;
+  state = FINISHED;
   clear_screen();
   print_string(win_str, WIN_STR_LEN, WIN_STR_COORD);
 }
@@ -141,7 +149,7 @@ void do_game_pause()
   }
   print_string(pause_str1, PAUSE_STR1_LEN, PAUSE_STR1_COORD);
   print_string(pause_str2, PAUSE_STR2_LEN, PAUSE_STR2_COORD);
-  game_paused = true;
+  state = PAUSED;
 }
 
 void do_game_unpause()
@@ -154,13 +162,13 @@ void do_game_unpause()
   {
     print_symbol(PAUSE_STR2_COORD + i, backup_array[PAUSE_STR1_LEN + i]);
   }
-  game_paused = false;
+  state = STARTED;
 }
 
 void game_cycle()
 {
   snake.get_input();
-  if(game_started && !game_finished && !game_paused)
+  if(state == STARTED)
   {
     snake.move_head();
     if (snake_coords[snake.head_index] == snack_coord)
@@ -242,9 +250,17 @@ void Snake::get_input()
   uint8_t key;
   if (get_key(key))
   {
+    if(state == PAUSED)
+    {
+      if(key == UNPAUSE_KEY)
+      {
+        do_game_unpause();
+      }
+      return;
+    }
+    state = STARTED;
     direction new_dir;
     new_dir = dir;
-    game_started = true;
     switch (key)
     {
     case UP_KEY:
@@ -260,16 +276,7 @@ void Snake::get_input()
       new_dir = RIGHT;
       break;
     case PAUSE_KEY:
-      if(!game_paused)
-      {
-        do_game_pause();
-      }
-      break;
-    case UNPAUSE_KEY:
-      if(game_paused)
-      {
-        do_game_unpause();
-      }
+      do_game_pause();
       break;
     }
     if((new_dir != -dir) && (new_dir != dir))
@@ -305,7 +312,7 @@ void Snake::move_tail()
 bool Snake::is_in_snake(const size_t coord)
 {
   bool res = 0;
-  for (size_t i = tail_index; i != head_index; i = i + 1 < WIN_LENGTH ? i + 1 : 0)
+  for (size_t i = tail_index; i != head_index; i = (i + 1)% WIN_LENGTH)
   {
     res |= coord == snake_coords[i];
   }
