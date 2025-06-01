@@ -43,14 +43,14 @@ void config_periph();
   Function that print passed symbol at specified coord of output device.
   Base function of the entire game graphic.
 */
-void print_symbol(size_t coord, uint8_t symbol);
+void print_symbol(const size_t coord, const uint8_t symbol);
 
 /*
   Function that return current symbol that printed on output device at specified
   coord. Used to backup output device regions while printing game overlays like
   game pause messages.
 */
-uint8_t get_symbol(size_t coord);
+uint8_t get_symbol(const size_t coord);
 
 /*
   Function that get current input from input devices and if that's input is

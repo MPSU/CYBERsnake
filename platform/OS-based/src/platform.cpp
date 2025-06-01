@@ -121,7 +121,7 @@ void redraw_frame()
   std::cout.flush();
 }
 
-void print_symbol(size_t coord, uint8_t symbol)
+void print_symbol(const size_t coord, const uint8_t symbol)
 {
   size_t row = coord / WIDTH;
   size_t col = coord % WIDTH;
@@ -131,7 +131,7 @@ void print_symbol(size_t coord, uint8_t symbol)
   }
 }
 
-uint8_t get_symbol(size_t coord)
+uint8_t get_symbol(const size_t coord)
 {
   size_t row = coord / WIDTH;
   size_t col = coord % WIDTH;
