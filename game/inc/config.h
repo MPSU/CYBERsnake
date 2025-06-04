@@ -9,13 +9,26 @@ See https://github.com/MPSU/CYBERsnake/blob/master/LICENSE file for licensing
 details.
 * ------------------------------------------------------------------------------
 */
+#include <cstddef>
+#include <cstdint>
+
 #define DEBUG true
 
-#define WIDTH 80
-#define HEIGHT 30
-#define SCREEN_SIZE WIDTH * HEIGHT
+constexpr size_t WIDTH = 80;
+constexpr size_t HEIGHT = 30;
+constexpr size_t SCREEN_AREA = WIDTH * HEIGHT;
+constexpr size_t WIN_LENGTH = 10;
 
-#define SNACK_ATTEMPTS_LIMIT 100
+constexpr size_t START_TAIL_WIDTH = 3;
+constexpr size_t START_TAIL_COORD = 15 * WIDTH + 10;
+constexpr size_t SNACK_ATTEMPTS_LIMIT = 100;
+
+constexpr uint8_t WALL_CHAR = '|';
+constexpr uint8_t HEAD_CHAR = 'o';
+constexpr uint8_t HOR_TAIL_CHAR = '-';
+constexpr uint8_t VER_TAIL_CHAR = '|';
+constexpr uint8_t SNACK_CHAR = '@';
+constexpr uint8_t SPACE_CHAR = ' ';
 
 #define PS2 0
 #define ASCII 1
@@ -23,35 +36,24 @@ details.
 #define INPUT_TYPE PS2
 #endif
 
-#define WALL_CHAR '|'
-#define HEAD_CHAR 'o'
-#define HOR_TAIL_CHAR '-'
-#define VER_TAIL_CHAR '|'
-#define SNACK_CHAR '@'
-#define SPACE_CHAR ' '
-#define WIN_LENGTH 256
-
 #if INPUT_TYPE == PS2
-#define UP_KEY      0x1D // W
-#define LEFT_KEY    0x1C // A
-#define DOWN_KEY    0x1B // S
-#define RIGHT_KEY   0x23 // D
-#define PAUSE_KEY   0x76 // ESC
-#define UNPAUSE_KEY 0x5a // Enter
+constexpr uint8_t UP_KEY      = 0x1D; // W
+constexpr uint8_t LEFT_KEY    = 0x1C; // A
+constexpr uint8_t DOWN_KEY    = 0x1B; // S
+constexpr uint8_t RIGHT_KEY   = 0x23; // D
+constexpr uint8_t PAUSE_KEY   = 0x76; // ESC
+constexpr uint8_t UNPAUSE_KEY = 0x5a; // Enter
 #elif INPUT_TYPE == ASCII
-#define UP_KEY      'w'   // W
-#define LEFT_KEY    'a'   // A
-#define DOWN_KEY    's'   // S
-#define RIGHT_KEY   'd'   // D
-#define PAUSE_KEY   0x1B  // ESC
+constexpr uint8_t UP_KEY      = 'w' ;  // W
+constexpr uint8_t LEFT_KEY    = 'a' ;  // A
+constexpr uint8_t DOWN_KEY    = 's' ;  // S
+constexpr uint8_t RIGHT_KEY   = 'd' ;  // D
+constexpr uint8_t PAUSE_KEY   = 0x1B;  // ESC
 #if defined(_WIN32)
-#define UNPAUSE_KEY '\r'  // Enter
+constexpr uint8_t UNPAUSE_KEY = '\r'; // Enter
 #else
-#define UNPAUSE_KEY '\n'  // Enter
+constexpr uint8_t UNPAUSE_KEY = '\n'; // Enter
 #endif
 #else
 #error "You must define INPUT_TYPE as either PS2 or ASCII"
 #endif
-
-#define START_TAIL_WIDTH 3
-#define START_TAIL_COORD 15 * WIDTH + 10;

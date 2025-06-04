@@ -59,10 +59,10 @@ std::atomic<bool> active;
 std::atomic<uint8_t> cur_key = 0;
 extern volatile uint8_t (*video_memory_2d)[WIDTH];
 extern volatile uint8_t *video_memory_1d;
-volatile uint8_t char_map[SCREEN_SIZE];
+volatile uint8_t char_map[SCREEN_AREA];
 
 std::default_random_engine rng;
-std::uniform_int_distribution<int> uniform_dist(WIDTH, WIDTH *(HEIGHT - 1));
+std::uniform_int_distribution<size_t> uniform_dist(WIDTH, WIDTH *(HEIGHT - 1));
 
 void timer_interrupt()
 {
@@ -138,7 +138,7 @@ size_t get_random_value()
   return uniform_dist(rng);
 }
 
-size_t seed_rng(size_t seed)
+void seed_rng(size_t seed)
 {
   if(seed == 0)
   {
@@ -146,5 +146,4 @@ size_t seed_rng(size_t seed)
     seed = r();
   }
   rng = std::default_random_engine(seed);
-  return seed;
 }

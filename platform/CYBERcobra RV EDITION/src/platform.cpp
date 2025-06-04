@@ -22,8 +22,8 @@ volatile PS2_HANDLE *ps2_ptr = CAST(struct PS2_HANDLE *, 0x03000000);
 extern Snake snake;
 extern volatile uint8_t (*video_memory_2d)[WIDTH];
 extern volatile uint8_t *video_memory_1d;
-std::minstd_rand0 rng;
-
+std::minstd_rand rng;
+std::uniform_int_distribution<short> uniform_dist(WIDTH, WIDTH *(HEIGHT - 1));
 void config_periph()
 {
   video_memory_1d = vga.char_map;
@@ -33,8 +33,8 @@ void config_periph()
 
 void config_timer()
 {
-  timer_ptr->delay_low_bits = 1000000; // 1/5s
-  timer_ptr->mode = 2;        // forever
+  timer_ptr->delay_low_bits = 2000000;  // 1/5s
+  timer_ptr->mode = 2;                  // forever
 }
 
 /*
@@ -49,14 +49,9 @@ bool get_key(uint8_t &key)
   return res;
 }
 
-/*
-  We need to get a random number started from the top-left non-wall coordinate
-  (which is WIDTH+1) to the bottom-right one (which is (WIDTH*(HEIGHT - 1) -1).
-*/
 size_t get_random_value()
 {
-  size_t value = WIDTH + 1 + rng() % (WIDTH * (HEIGHT - 2) - 2);
-  return value;
+  return WIDTH + 1 + rng() % (WIDTH * (HEIGHT - 2) - 2);
 }
 
 /*
@@ -67,14 +62,13 @@ size_t get_tick_number()
   return timer_ptr->system_counter_low_bits;
 }
 
-size_t seed_rng(size_t seed)
+void seed_rng(size_t seed)
 {
   if(seed == 0)
   {
     seed = get_tick_number();
   }
   rng.seed(seed);
-  return seed;
 }
 
 extern "C" void int_handler()
