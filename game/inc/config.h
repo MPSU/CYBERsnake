@@ -17,7 +17,7 @@ details.
 constexpr size_t WIDTH = 80;
 constexpr size_t HEIGHT = 30;
 constexpr size_t SCREEN_AREA = WIDTH * HEIGHT;
-constexpr size_t WIN_LENGTH = 10;
+constexpr size_t WIN_LENGTH = 256;
 
 constexpr size_t START_TAIL_WIDTH = 3;
 constexpr size_t START_TAIL_COORD = 15 * WIDTH + 10;
