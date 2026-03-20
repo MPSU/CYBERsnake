@@ -82,7 +82,6 @@ SECTIONS
     *(.text*)
   } > instr_mem
 
-
   /*
   Секция данных размещается аналогично секции инструкций за исключением
   адреса загрузки в памяти (Load Memory Address, LMA). Поскольку память
@@ -112,6 +111,11 @@ SECTIONS
     _gbl_ptr = . + 2048;
     *(.*data*)
     *(.sdata*)
+    . = ALIGN(4);
+    PROVIDE(__init_array_start = .);
+    KEEP(*(.init_array))
+    KEEP(*(SORT(.init_array.*)))
+    PROVIDE(__init_array_end = .);
   } > data_mem
 
 

@@ -23,7 +23,7 @@ extern Snake snake;
 extern volatile uint8_t (*video_memory_2d)[WIDTH];
 extern volatile uint8_t *video_memory_1d;
 std::minstd_rand rng;
-std::uniform_int_distribution<short> uniform_dist(WIDTH, WIDTH *(HEIGHT - 1));
+std::uniform_int_distribution<int> uniform_dist(WIDTH, WIDTH *(HEIGHT - 1));
 void config_periph()
 {
   video_memory_1d = vga.char_map;
@@ -51,7 +51,7 @@ bool get_key(uint8_t &key)
 
 size_t get_random_value()
 {
-  return WIDTH + 1 + rng() % (WIDTH * (HEIGHT - 2) - 2);
+  return uniform_dist(rng);
 }
 
 /*
